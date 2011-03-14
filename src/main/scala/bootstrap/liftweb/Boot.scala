@@ -1,5 +1,7 @@
 package bootstrap.liftweb
 
+import com.fmpwizard.code.model.{Inventory, InventoryImages}
+
 import net.liftweb._
 import util._
 import Helpers._
@@ -30,26 +32,18 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
 
-    // Use Lift's Mapper ORM to populate the database
-    // you don't need to use Mapper to use Lift... use
-    // any ORM you want
-    //Schemifier.schemify(true, Schemifier.infoF _, User)
-	//Enhance some max sizes
-	LiftRules.maxMimeFileSize = 1173741824L
-	LiftRules.maxMimeSize = 1273741824L
+    Schemifier.schemify(true, Schemifier.infoF _, InventoryImages, Inventory)
+	  //Enhance some max sizes
+	  LiftRules.maxMimeFileSize = 1173741824L
+	  LiftRules.maxMimeSize = 1273741824L
     // where to search snippet
-    LiftRules.addToPackages("code")
-	//Make sure we don't put stuff in memory for uploads
-	LiftRules.handleMimeFile = OnDiskFileParamHolder.apply
+    LiftRules.addToPackages("com.fmpwizard.code")
+	  //Make sure we don't put stuff in memory for uploads
+	  LiftRules.handleMimeFile = OnDiskFileParamHolder.apply
 
     // Build SiteMap
     def sitemap = SiteMap(
-      Menu.i("Home") / "index", // the simple way to declare a menu
-	  Menu("Dev test") / "devtest",
-      // more complex because this menu allows anything in the
-      // /static path to be visible
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+      Menu.i("Home") / "index")
 
 
     // set the sitemap.  Note if you don't want access control for

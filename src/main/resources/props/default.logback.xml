@@ -6,13 +6,8 @@
         </layout>
     </appender>
 
-    <logger name="code.snippet" level="info"/>
-    <logger name="code.api" level="info"/>
-    <logger name="code.model" level="info"/>
-    <logger name="code.comet" level="info"/>
-    <logger name="code.lib" level="info"/>
-
-    <logger name="MySQL" level="warn"/>
+    <logger name="com.fmpwizard.code.snippet" level="info"/>
+    <logger name="com.fmpwizard.code.model" level="info"/>
     <root level="error">
         <appender-ref ref="STDOUT" />
     </root>
