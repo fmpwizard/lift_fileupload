@@ -27,6 +27,17 @@ class Upload extends Logger {
   object img extends RequestVar(InventoryImages.create)
   object imageFile extends RequestVar[Box[FileParamHolder]](Empty)
 
+
+  /**
+   * Use a unique name for the file, so you don't have
+   * to rename images before upload.
+   *
+   * If you want to use the file original name, use
+   * fp.fileName
+   *
+   */
+  object fileName extends RequestVar[Box[String]](Full(Helpers.nextFuncName))
+
   private def saveFile(fp: FileParamHolder): Unit = {
     fp.file match {
       case null =>
@@ -39,10 +50,15 @@ class Upload extends Logger {
          */
         val filePath = "src/main/webapp/images"
 
+
+
         /**
          * Set some fields on the Image table
          */
-        img.is.img_path.set(filePath + "/" + fp.fileName)
+        fileName.is.map{
+          name => img.is.img_path.set(filePath + "/" + name + fp.fileName.takeRight(4))
+        }
+
         img.is.mime_type.set(fp.mimeType)
         img.is.sort_order.set(0)
 
@@ -57,9 +73,10 @@ class Upload extends Logger {
 
         /**
          * Here we save the file to the File System
+         * I'm 99% sure I could use open_! but I'd rather get
+         * a broken link than a NPE
          */
-
-        val oFile = new File(filePath, fp.fileName)
+        val oFile = new File(filePath,  fileName.is.openOr("BrokenLink") + fp.fileName.takeRight(4))
               val output = new FileOutputStream(oFile)
               output.write(fp.file)
               output.close()
@@ -84,6 +101,8 @@ class Upload extends Logger {
       }
 
     }
+
+
     "name=part_number" #> SHtml.onSubmit(product.is.part_number.set(_)) &
     uploadImg &
     "type=submit" #> SHtml.onSubmitUnit(process)
@@ -99,11 +118,14 @@ class Upload extends Logger {
       case (true, _, _)  => "name=image" #> SHtml.fileUpload(s => imageFile(Full(s)))
       case (_, Empty, _) => "name=image" #> SHtml.fileUpload(s => imageFile(Full(s)))
       case (_, _, "")    => "name=image" #> SHtml.fileUpload(s => imageFile(Full(s)))
-      case (false, _, _) => "name=image" #> SHtml.link(
-        "http://127.0.0.1:8080/images/" +
-          imageFile.is.dmap("?")(_.fileName) ,
-        () => Unit ,
-        <span>Click to see image: {imageFile.is.dmap("?")(_.fileName)}</span>)
+      case (false, _, _) => "name=image" #> fileName.is.map{ name =>
+        SHtml.link(
+          "http://127.0.0.1:8080/images/" + //Using open_! because we already made sure it is not Null
+            name + imageFile.is.open_!.fileName.takeRight(4) ,
+          () => Unit ,
+          <span>Click to see image: {name + imageFile.is.open_!.fileName.takeRight(4)}</span>
+        )
+      }
     }
   }
 
