@@ -1,4 +1,4 @@
-`Run:
+Run:
 
 ```
 git clone git://github.com/fmpwizard/lift_fileupload.git
@@ -8,9 +8,9 @@ sbt
 > jetty-run
 ```
 
-Go to http://127.0.0.1:8080
+Go to `http://127.0.0.1:8080`
 
 Select a file to upload and click "Create"
 
-It will not upload anything :(
+This example now works (so you can use it as a  getting starting point)
 
